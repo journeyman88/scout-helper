@@ -22,12 +22,14 @@ package net.unknowndomain.scouthelper;
 public class Scouthelper {
 
     public static void main(String[] args) {
-        MorseCodec morse = new MorseCodec();
+        TextCodec morse = new MorseCodec();
         String enc = morse.encodeText("Chocolate 123");
         System.out.println(enc);
         String nenc = enc.replaceAll("·", ".").substring(1);
         System.out.println(nenc);
         String dec = morse.decodeText(nenc);
         System.out.println(dec);
+        TextCodec alg1 = AlgebricCodec.compile("AFF0000216");
+        System.out.println(alg1.encodeText("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
     }
 }
