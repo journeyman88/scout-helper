@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.unknowndomain.scouthelper;
+package net.unknowndomain.scouthelper.codecs;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -44,38 +45,6 @@ public abstract class ListCodec implements TextCodec
     protected ListCodec(List<String> decodedAlphabet, List<String> encodedAlphabet)
     {
         this(decodedAlphabet, encodedAlphabet, '/', false);
-    }
-    
-    protected ListCodec(BidiMap<String, String> codecMap)
-    {
-        this(codecMap, '/', false);
-    }
-    
-    protected ListCodec(BidiMap<String, String> codecMap, Character separator, boolean caseSensitive)
-    {
-        if (codecMap == null)
-        {
-            throw new RuntimeException();
-        }
-        this.separator = "" + separator;
-        this.codecMap = codecMap;
-        StringBuilder plainPattern = new StringBuilder("(\\s");
-        StringBuilder encodedPattern = new StringBuilder("(").append(Pattern.quote(this.separator + this.separator));
-        for (String key : codecMap.keySet())
-        {
-            plainPattern.append("|").append(key);
-            encodedPattern.append("|").append(codecMap.get(key));
-        }
-        plainPattern.append(")");
-        encodedPattern.append(")");
-        int flag = Pattern.CASE_INSENSITIVE;
-        this.caseSensitive = caseSensitive;
-        if (this.caseSensitive)
-        {
-            flag = 0;
-        }
-        validPlainInput = Pattern.compile(plainPattern.toString(), flag);
-        validEncodedInput = Pattern.compile(encodedPattern.toString());
     }
     
     protected ListCodec(List<String> decodedAlphabet, List<String> encodedAlphabet, Character separator, boolean caseSensitive)
@@ -105,6 +74,24 @@ public abstract class ListCodec implements TextCodec
         }
         validPlainInput = Pattern.compile(plainPattern.toString(), flag);
         validEncodedInput = Pattern.compile(encodedPattern.toString());
+    }
+    
+    protected ListCodec(BidiMap<String, String> codecMap, String plainRegex, String codedRegex, Character separator, boolean caseSensitive)
+    {
+        if ((codecMap == null) || (separator == null) || StringUtils.isAnyBlank(plainRegex, codedRegex))
+        {
+            throw new RuntimeException();
+        }
+        this.separator = "" + separator;
+        this.codecMap = codecMap;
+        int flag = Pattern.CASE_INSENSITIVE;
+        this.caseSensitive = caseSensitive;
+        if (this.caseSensitive)
+        {
+            flag = 0;
+        }
+        validPlainInput = Pattern.compile(plainRegex, flag);
+        validEncodedInput = Pattern.compile(codedRegex);
     }
     
     protected String encoderPreprocessor(String text)

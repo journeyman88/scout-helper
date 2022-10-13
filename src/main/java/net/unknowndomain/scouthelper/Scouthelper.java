@@ -15,6 +15,11 @@
  */
 package net.unknowndomain.scouthelper;
 
+import net.unknowndomain.scouthelper.codecs.tree.TreeCodec;
+import net.unknowndomain.scouthelper.codecs.TextCodec;
+import net.unknowndomain.scouthelper.codecs.shift.ShiftCodec;
+import net.unknowndomain.scouthelper.codecs.MorseCodec;
+
 /**
  *
  * @author m.bignami
@@ -29,7 +34,15 @@ public class Scouthelper {
         System.out.println(nenc);
         String dec = morse.decodeText(nenc);
         System.out.println(dec);
-        TextCodec alg1 = AlgebricCodec.compile("AFF0000216");
+        String seed = ShiftCodec.seed(1, 0, 2, 8, ShiftCodec.Flags.MIRROR_LEFT);
+        System.out.println(seed);
+        TextCodec alg1 = ShiftCodec.compile(seed);
+        System.out.println(alg1.encodeText("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+        seed = ShiftCodec.seed(1, 0, 2, 10, ShiftCodec.Flags.MIRROR_LEFT, ShiftCodec.Flags.VERTICAL_FLIP_POST_INIT);
+        System.out.println(seed);
+        alg1 = ShiftCodec.compile(seed);
+        System.out.println(alg1.encodeText("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+        alg1 = TreeCodec.build(1, 5, 1, 10);
         System.out.println(alg1.encodeText("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
     }
 }

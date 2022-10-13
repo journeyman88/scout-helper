@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.unknowndomain.scouthelper;
+package net.unknowndomain.scouthelper.codecs;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
@@ -24,7 +22,7 @@ import org.apache.commons.collections4.bidimap.DualHashBidiMap;
  *
  * @author m.bignami
  */
-public class MorseCodec implements TextCodec
+public class MorseCodec extends ListCodec
 {
     private static final BidiMap<String, String> CODEC_MAP = new DualHashBidiMap<>();
     
@@ -68,45 +66,15 @@ public class MorseCodec implements TextCodec
         CODEC_MAP.put("8", "---··");
         CODEC_MAP.put("9", "----·");
     }
-
-    @Override
-    public String encodeText(String text)
-    {
-        StringBuilder encoded = new StringBuilder();
-        Pattern validGroups = Pattern.compile("(ch|\\w|\\s)", Pattern.CASE_INSENSITIVE);
-        Matcher match = validGroups.matcher(text);
-        while(match.find())
-        {
-            String tmp = match.group().toUpperCase();
-            encoded.append("/");
-            if (!tmp.matches("\\s"))
-            {
-                encoded.append(CODEC_MAP.get(tmp));
-            }
-        }
-        encoded.append("/");
-        return encoded.toString();
-    }
-
-    @Override
-    public String decodeText(String text)
-    {
-        StringBuilder decoded = new StringBuilder();
-        Pattern validGroups = Pattern.compile("([·-]+|(\\/\\/))", Pattern.CASE_INSENSITIVE);
-        Matcher match = validGroups.matcher(text.replaceAll("\\.", "·"));
-        while(match.find())
-        {
-            String tmp = match.group().replaceAll("/", "");
-            if (tmp.isBlank())
-            {
-                decoded.append(" ");
-            }
-            else
-            {
-                decoded.append(CODEC_MAP.getKey(tmp));
-            }
-        }
-        return decoded.toString();
-    }
     
+    public MorseCodec()
+    {
+        super(CODEC_MAP, "(ch|\\w|\\s)", "([·\\-]+|(\\/\\/))", '/', false);
+    }
+
+    @Override
+    protected String decoderPreprocessor(String text)
+    {
+        return text.replaceAll("\\.", "·");
+    }
 }
